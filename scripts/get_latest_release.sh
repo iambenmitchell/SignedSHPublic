@@ -5,6 +5,7 @@ getVersion() {
     sed -E 's/.*"([^"]+)".*/\1/'
 }
 writeVersion() {
+  clear
   echo "Save Version"
   func_result="$(getVersion)"
   echo $func_result >version.txt
@@ -24,54 +25,56 @@ checkForUpdate() {
   fi
 }
 
-checkForUpdateLive() {
-  echo "Checking for updates"
-  currentVersion=$(cat version.txt)
-  latestVersion="$(getVersion)"
-  if [ "$currentVersion" == "$latestVersion" ]; then
-    echo "Strings are equal"
-    echo "current version is: "$currentVersion""
-    echo "latest version is: "$latestVersion""
-  else
-    echo "Strings are not equal"
-    echo "current version is: "$currentVersion""
-    echo "latest version is: "$latestVersion""
-    writeVersion
-    downloadURL
-  fi
-}
-
 downloadURL() {
   curl -s https://api.github.com/repos/pwn20wndstuff/Undecimus/releases/latest |
     grep "browser_download_url.*ipa" |
     cut -d : -f 2,3 |
     tr -d \" |
     wget -qi -
-  rm -rf #file#
-  mv *.ipa #new#
+  rm -rf /path/unc0ver.ipa
+  mv *.ipa /path/unc0ver.ipa
   signAll
 }
 
 signAll() {
-  #signscript
+  echo "signing apps"
+  cd /root/unsigned/
+      #sign script
   tweetUpdate
 }
 
 tweetUpdate() {
   echo "Tweet"
-  curl -X POST -H 'Content-type: application/json' --data '{"text":"Unc0ver Updated"}' #webhook#
+  curl -X POST -H 'Content-type: application/json' --data '{"text":"Unc0ver Updated"}' #webhook
   cd /root/
 }
 
 go() {
   #!/bin/sh
   while [ true ]; do
+    clear
     dt=$(date '+%d/%m/%Y %H:%M:%S')
     echo "$dt"
     cd /root/
-    pwd
-    checkForUpdateLive
-    sleep 30
+    echo "Checking for updates"
+    currentVersion=$(cat version.txt)
+    latestVersion="$(getVersion)"
+    if [ "$currentVersion" == "$latestVersion" ]; then
+      echo "$(<image.txt)"
+      echo "Already latest version: $latestVersion"
+      secs=$((30))
+      while [ $secs -gt 0 ]; do
+        echo -ne "Next check in: $secs\033[0K\r"
+        sleep 1
+        : $((secs--))
+      done
+    else
+      echo "current version is: "$currentVersion""
+      echo "latest version is: "$latestVersion""
+      echo "Updating"
+      writeVersion
+      downloadURL
+    fi
   done
 
 }
@@ -98,7 +101,8 @@ manager() {
       echo "Signing app manually, must be in unsigned folder"
       echo "What is the name of the IPA, eg unc0ver.ipa"
       read ipaName
-      #sign script
+      cd /root/unsigned/
+          #sign script
       echo "Done"
       manager
       ;;
@@ -110,8 +114,8 @@ manager() {
       read linkDownload
       cd /root/downloads
       wget -O $fileName.ipa $linkDownload
-      rm -rf /path/$fileName.ipa
-      mv $fileName.ipa /path/$fileName.ipa
+      rm -rf /paths$fileName.ipa
+      mv $fileName.ipa /paths$fileName.ipa
       rm -rf $fileName.ipa
       clear
       manager
