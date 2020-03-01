@@ -125,7 +125,7 @@ manager() {
       ;;
     "Quit")
       clear
-      break
+      exit 1
       ;;
     *) echo "invalid option $REPLY" ;;
     esac
