@@ -6,7 +6,7 @@ Scripts:
 
 
 **GitHub Release checker**
-How to use: `./get_latest_release.sh go`
+How to use: `./get_latest_release.sh manager`
 Probbaly run this in `tmux` or something similar 
 Setup:
 Replace `gitUserName:Token` with your GitHub username and token to avoid rate limits (they still apply but are greater)
